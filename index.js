@@ -9,10 +9,24 @@ async function getNotifications(options) {
   const notifications = await Promise.all(
     body.map(async (item) => {
       const url = item.subject.latest_comment_url || item.subject.url;
-      const { body } = await ghGot(url.replace("https://api.github.com/", ""), {
-        token: options.token,
-      });
-      item.subject.html_url = body.html_url;
+      var html_url = url;
+
+      try {
+        const { body } = await ghGot(
+          url.replace("https://api.github.com/", ""),
+          {
+            token: options.token,
+          }
+        );
+        html_url = body.html_url;
+      } catch (error) {
+        html_url = url
+          .replace(/api\./, "")
+          .replace(/repos\//, "")
+          .replace(/(pull|commit)s/, "$1");
+      }
+
+      item.subject.html_url = html_url;
       return item;
     })
   );
