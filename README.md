@@ -18,7 +18,6 @@ plugin({
 
 ## Todos
 
-- Differentiate icons based on type of notification
-- Fail gracefully
 - Build icons initially if they haven't been yet
 - Add ability to filter results
+- Add ability to mark individual threads as read

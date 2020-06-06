@@ -1,10 +1,18 @@
 const ghGot = require("gh-got");
+const minimist = require("minimist");
 
-const token = process.argv.pop();
+const args = minimist(process.argv.slice(2));
+var endpoint = "notifications";
+var method = "PUT";
+
+if (args.thread) {
+  endpoint += `/threads/${args.thread}`;
+  method = "PATCH";
+}
 
 (async () => {
-  await ghGot("notifications", {
-    token: token,
-    method: "PUT",
+  await ghGot(endpoint, {
+    token: args.token,
+    method: method,
   });
 })();

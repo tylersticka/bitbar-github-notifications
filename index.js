@@ -8,25 +8,23 @@ async function getNotifications(options) {
   const { body } = await ghGot("notifications", { token: options.token });
   const notifications = await Promise.all(
     body.map(async (item) => {
-      const url = item.subject.latest_comment_url || item.subject.url;
-      var html_url = url;
+      var { subject } = item;
+      const url = subject.latest_comment_url || subject.url;
+      const endpoint = url.replace("https://api.github.com/", "");
 
       try {
-        const { body } = await ghGot(
-          url.replace("https://api.github.com/", ""),
-          {
-            token: options.token,
-          }
-        );
-        html_url = body.html_url;
+        const { body } = await ghGot(endpoint, {
+          token: options.token,
+        });
+        subject = { ...subject, ...body };
       } catch (error) {
-        html_url = url
+        subject.html_url = url
           .replace(/api\./, "")
           .replace(/repos\//, "")
           .replace(/(pull|commit)s/, "$1");
       }
 
-      item.subject.html_url = html_url;
+      item.subject = subject;
       return item;
     })
   );
@@ -47,10 +45,50 @@ function groupByRepository(notifications) {
 }
 
 function itemFromNotification(notification) {
+  const { subject } = notification;
+  const { title, type, html_url, user, merged, draft, state } = subject;
+  var icon = icons["primitive-dot"];
+
+  if (user && user.type === "Bot") {
+    icon = icons["hubot"];
+  } else if (type === "Issue") {
+    if (state === "closed") {
+      icon = icons["issue-closed"];
+    } else {
+      icon = icons["issue-opened"];
+    }
+  } else if (type === "PullRequest") {
+    if (merged) {
+      icon = icons["git-merge"];
+    } else if (draft) {
+      icon = icons["pencil"];
+    } else {
+      icon = icons["git-pull-request"];
+    }
+  }
+
   const item = {
-    text: notification.subject.title,
-    href: notification.subject.html_url,
-    templateImage: icons["issue-opened"],
+    text: title,
+    href: html_url,
+    templateImage: icon,
+  };
+
+  return item;
+}
+
+function alternateItemFromNotification(notification) {
+  const { subject, id } = notification;
+  const { title } = subject;
+
+  const item = {
+    text: `Mark Read: ${title}`,
+    templateImage: icons["check"],
+    bash: `node ${path.join(__dirname, "mark-as-read.js")} --token=${
+      options.token
+    } --thread=${id}`,
+    terminal: true,
+    refresh: true,
+    alternate: true,
   };
 
   return item;
@@ -70,7 +108,7 @@ async function plugin(options) {
   const repositories = groupByRepository(notifications);
   const items = [
     {
-      text: `${count && count}`,
+      text: count > 0 ? `${count}` : "",
       templateImage: icons["octoface"],
     },
     bitbar.separator,
@@ -90,8 +128,11 @@ async function plugin(options) {
     items.push({
       text: "Mark all as read",
       templateImage: icons["mail-read"],
-      bash: `node ${path.join(__dirname, "mark-as-read.js")} ${options.token}`,
+      bash: `node ${path.join(__dirname, "mark-as-read.js")} --token=${
+        options.token
+      }`,
       terminal: true,
+      refresh: true,
     });
   }
 
