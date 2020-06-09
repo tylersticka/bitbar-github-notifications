@@ -1,9 +1,12 @@
-// const ghGot = require("gh-got");
 const minimist = require("minimist");
 const bitbar = require("bitbar");
 const { getNotifications, groupByRepository } = require("./lib/notifications");
 const { getIcons } = require("./lib/icons");
 const { markAsRead } = require("./lib/mark-as-read");
+
+const defaults = {
+  icon: "octoface",
+};
 
 const scriptBase = process.argv.slice(0, 2).join(" ");
 const processArgs = minimist(process.argv.slice(2));
@@ -35,7 +38,7 @@ function threadIcon(thread) {
 }
 
 async function plugin(options) {
-  const settings = { ...options, ...processArgs };
+  const settings = { ...defaults, ...options, ...processArgs };
   const icons = await getIcons();
   const items = [];
 
@@ -56,7 +59,7 @@ async function plugin(options) {
   items.push(
     {
       text: count > 0 ? `${count}` : "",
-      templateImage: icons["octoface"],
+      templateImage: icons[settings.icon],
     },
     bitbar.separator,
     {
