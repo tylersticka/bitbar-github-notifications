@@ -18,6 +18,5 @@ plugin({
 
 ## Todos
 
-- Troubleshoot "mark as read" features
-- Add built-in feature options
 - Update and simplify plugin instantiation
+- Add better instructions
