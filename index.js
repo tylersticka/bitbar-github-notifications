@@ -97,7 +97,7 @@ async function plugin(options) {
       bash: scriptBase,
       param1: "--action=read",
       refresh: true,
-      terminal: true,
+      terminal: false,
     });
 
     const repositories = groupByRepository(notifications);
