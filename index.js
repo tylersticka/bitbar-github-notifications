@@ -3,7 +3,6 @@ const bitbar = require("bitbar");
 const { getItems } = require("./lib/items");
 const { markAsRead } = require("./lib/mark-as-read");
 
-
 const defaults = {
   icon: "octoface",
   apiRoot: "https://api.github.com/",
@@ -17,7 +16,7 @@ const processArgs = minimist(process.argv.slice(2));
 async function plugin(options) {
   const settings = { ...defaults, ...options, ...processArgs };
 
-  if (settings.action === 'read') {
+  if (settings.action === "read") {
     return markAsRead(settings);
   }
 
