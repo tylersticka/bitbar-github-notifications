@@ -17,6 +17,7 @@ To set up, you will need:
 1. Clone this repository somewhere on your Mac that you'll have permission to access from your BitBar plugin directory. Make note of the path.
 1. Create a new `.js` file in your BitBar directory, following [BitBar's conventions for specifying the desired refresh time](https://github.com/matryer/bitbar#configure-the-refresh-time). For example, `github-notifications.30s.js` will refresh every 30 seconds.
 1. Populate the file with one of the below examples, taking care to update the path to your Node executable, the path to where you cloned this repository, and your personal access token.
+1. Run `chmod +x filename.js` to make sure BitBar will have permissions to run this file.
 
 ## Example plugin
 
