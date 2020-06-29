@@ -17,7 +17,15 @@ async function plugin(options) {
   const settings = { ...defaults, ...options, ...processArgs };
 
   if (settings.action === "read") {
-    return markAsRead(settings);
+    console.log("Marking notifications as read...");
+    console.log("\n");
+    try {
+      await markAsRead(settings);
+      console.log("Done! You can close this now.");
+    } catch (err) {
+      console.log(err);
+    }
+    return;
   }
 
   const items = await getItems(settings);
